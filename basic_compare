@@ -1,0 +1,46 @@
+import librosa
+from utils import get_common_elements
+import numpy as np
+def extract_frequencies_volumes(audio_file):
+  """
+  Extracts a list of frequencies and their volumes from an audio file.
+
+  Args:
+      audio_file (str): Path to the audio file.
+
+  Returns:
+      list, list: Two lists containing frequencies and volumes, respectively.
+  """
+
+  # Load the audio data
+  y, sr = librosa.load(audio_file)
+
+  # Compute the Mel-frequency spectrogram (MFCC)
+  S = librosa.feature.mfcc(y=y)
+
+  # Extract frequencies from Mel-frequency bins
+  f = librosa.core.mel_frequencies(n_mels=S.shape[0])  # Frequencies in Hz
+
+  # Convert Mel-frequency spectrogram to power spectrogram (optional)
+  # power_spectrogram = librosa.power_to_db(S)  # Decibels
+
+  # Extract volumes (amplitudes) from the spectrogram
+  volumes = np.max(S, axis=0)  # Maximum amplitude for each frequency bin
+
+  return f, volumes
+
+def get_reapted_frequnacies(wave_file_name, chuck_size = 10):
+	frequencies, volumes = extract_frequencies_volumes(wave_file_name)
+	reapted_tones = []
+	space = int(len(frequencies) / chuck_size)
+	freq_count =  len(frequencies)
+	last = frequencies[0: space]
+	for i in range(0, len(frequencies) - space, space):
+		print(last)
+		last = get_common_elements(last , frequencies[i: i + space], 10)
+	good_sounds = last
+        return good_sounds
+
+c1 = get_reapted_frequnacies("goodwave.wav")
+c2 = get_reapted_frequnacies("false_postive.wav")
+np.setdiff1d(c1, c2)
